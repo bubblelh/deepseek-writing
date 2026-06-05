@@ -1559,6 +1559,114 @@
       }
     }
 
+
+
+    /* ===== Bubble.lh v2.1 reasoning alignment fix ===== */
+    .message.assistant .bubble {
+      max-width: min(760px, 100%);
+    }
+
+    .thinking {
+      display: block;
+      max-width: min(760px, 100%);
+      margin: 0 0 6px 0 !important;
+      padding: 0 !important;
+    }
+
+    .thinking-toggle,
+    .thinking-toggle.thinking-static {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 7px !important;
+      width: auto !important;
+      margin: 0 !important;
+      padding: 0 0 2px 0 !important;
+      border: 0 !important;
+      border-bottom: 1px solid rgba(79, 89, 101, .75) !important;
+      background: transparent !important;
+      color: #4f5965 !important;
+      font-weight: 700 !important;
+      line-height: 1.25 !important;
+      text-align: left !important;
+      cursor: pointer;
+    }
+
+    .thinking-toggle.thinking-static {
+      cursor: default;
+      border-bottom-color: rgba(79, 89, 101, .35) !important;
+    }
+
+    .thinking-toggle i:first-child {
+      color: #ffb21a !important;
+      width: auto !important;
+      margin: 0 !important;
+    }
+
+    .thinking-toggle .thinking-arrow {
+      color: var(--muted) !important;
+      font-size: 12px !important;
+      margin-left: 2px !important;
+      transition: transform .16s ease;
+    }
+
+    .thinking.open .thinking-arrow {
+      transform: rotate(180deg);
+    }
+
+    .thinking-content {
+      display: none !important;
+      max-width: min(760px, 100%) !important;
+      margin: 8px 0 10px 0 !important;
+      padding: 10px 12px !important;
+      border: 1px solid var(--line) !important;
+      border-left: 3px solid var(--line) !important;
+      background: var(--panel) !important;
+      color: #5d6672 !important;
+      border-radius: 8px !important;
+      white-space: pre-wrap !important;
+      line-height: 1.65 !important;
+      font-size: 14px !important;
+      box-shadow: none !important;
+      min-height: 0 !important;
+    }
+
+    .thinking.open .thinking-content:not(:empty) {
+      display: block !important;
+    }
+
+    .answer-content {
+      display: block !important;
+      max-width: min(760px, 100%) !important;
+      margin: 4px 0 0 0 !important;
+      padding: 0 !important;
+    }
+
+    @media (max-width: 820px) {
+      .message.assistant .bubble,
+      .thinking,
+      .thinking-content,
+      .answer-content {
+        max-width: 100% !important;
+      }
+
+      .thinking {
+        margin-bottom: 6px !important;
+      }
+
+      .thinking-content {
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
+        padding: 9px 11px !important;
+        font-size: 13px !important;
+        border-radius: 8px !important;
+      }
+
+      .answer-content {
+        margin-top: 4px !important;
+      }
+    }
+
   </style>
 </head>
 <body>
