@@ -458,6 +458,33 @@
       color: var(--danger);
     }
 
+    .cloud-usage {
+      margin: 10px 0 8px;
+    }
+
+    .cloud-usage-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .cloud-usage-line strong {
+      color: #53606f;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .cloud-usage-line.warn strong {
+      color: var(--warn);
+    }
+
+    .cloud-usage-line.danger strong {
+      color: var(--danger);
+    }
+
     .count-warn {
       color: var(--warn);
     }
@@ -1684,6 +1711,17 @@
             <button class="ghost-btn" id="cloudPushBtn"><i class="fa-solid fa-cloud-arrow-up"></i>上传本机</button>
           </div>
           <div class="convo-meta" id="cloudSyncStatus" style="margin-top:8px;">未启用</div>
+          <div class="cloud-usage">
+            <div class="cloud-usage-line">
+              <span>云端数据大小</span>
+              <strong id="cloudDataSize">0 KB / 2 MB</strong>
+            </div>
+            <div class="meter"><div class="meter-fill" id="cloudDataMeter"></div></div>
+          </div>
+          <div class="row">
+            <button class="ghost-btn" id="clearCurrentThinkingBtn"><i class="fa-solid fa-broom"></i>清理当前思考</button>
+            <button class="ghost-btn" id="clearAllThinkingBtn"><i class="fa-solid fa-broom-ball"></i>清理全部思考</button>
+          </div>
         </div>
 
         <div class="setting-group">
@@ -1889,6 +1927,10 @@
       cloudPullBtn: document.getElementById("cloudPullBtn"),
       cloudPushBtn: document.getElementById("cloudPushBtn"),
       cloudSyncStatus: document.getElementById("cloudSyncStatus"),
+      cloudDataSize: document.getElementById("cloudDataSize"),
+      cloudDataMeter: document.getElementById("cloudDataMeter"),
+      clearCurrentThinkingBtn: document.getElementById("clearCurrentThinkingBtn"),
+      clearAllThinkingBtn: document.getElementById("clearAllThinkingBtn"),
       temperatureInput: document.getElementById("temperatureInput"),
       temperatureValue: document.getElementById("temperatureValue"),
       topPInput: document.getElementById("topPInput"),
@@ -1988,9 +2030,38 @@
       };
     }
 
+    function byteLength(text) {
+      return new TextEncoder().encode(text || "").length;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+      if (bytes >= 1024) return `${Math.ceil(bytes / 1024)} KB`;
+      return `${bytes} B`;
+    }
+
+    function cloudDataBytes() {
+      return byteLength(JSON.stringify(cloudSnapshot()));
+    }
+
+    function updateCloudDataSize() {
+      if (!el.cloudDataSize || !el.cloudDataMeter) return;
+      const limit = 2 * 1000 * 1000;
+      const bytes = cloudDataBytes();
+      const percent = Math.min(100, Math.round((bytes / limit) * 100));
+      const line = el.cloudDataSize.closest(".cloud-usage-line");
+      el.cloudDataSize.textContent = `${formatBytes(bytes)} / 2 MB`;
+      el.cloudDataMeter.style.width = `${percent}%`;
+      el.cloudDataMeter.classList.toggle("warn", percent >= 70 && percent < 90);
+      el.cloudDataMeter.classList.toggle("danger", percent >= 90);
+      line?.classList.toggle("warn", percent >= 70 && percent < 90);
+      line?.classList.toggle("danger", percent >= 90);
+    }
+
     function save(options = {}) {
       const { sync = true } = options;
       localStorage.setItem(STORE_KEY, JSON.stringify(localSnapshot()));
+      updateCloudDataSize();
       if (sync && !applyingCloudState) scheduleCloudSave();
     }
 
@@ -2201,6 +2272,7 @@
       el.contextMessageLimitValue.textContent = contextLimitLabel(normalizedLimit);
       el.modeButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.mode === state.settings.mode));
       el.modePill.innerHTML = `<i class="fa-solid fa-layer-group"></i>${modeLabel(state.settings.mode)}`;
+      updateCloudDataSize();
       updateSystemPromptHint();
     }
 
@@ -3150,6 +3222,42 @@
       renderAll();
     }
 
+    function clearThinkingInConversation(convo) {
+      if (!convo?.messages) return 0;
+      let count = 0;
+      convo.messages.forEach(msg => {
+        if (String(msg.reasoningContent || "").trim()) {
+          msg.reasoningContent = "";
+          count += 1;
+        }
+      });
+      if (count) convo.updatedAt = Date.now();
+      return count;
+    }
+
+    function clearCurrentThinking() {
+      const convo = getCurrentConvo();
+      const count = (convo?.messages || []).filter(msg => String(msg.reasoningContent || "").trim()).length;
+      if (!count) return toast("当前对话没有可清理的思考内容");
+      if (!confirm(`清理当前对话 ${count} 条思考内容？正式回复会保留。`)) return;
+      clearThinkingInConversation(convo);
+      save();
+      renderAll();
+      toast(`已清理 ${count} 条思考内容`);
+    }
+
+    function clearAllThinking() {
+      const count = state.conversations.reduce((sum, convo) => (
+        sum + (convo.messages || []).filter(msg => String(msg.reasoningContent || "").trim()).length
+      ), 0);
+      if (!count) return toast("没有可清理的思考内容");
+      if (!confirm(`清理全部对话中的 ${count} 条思考内容？正式回复会保留。`)) return;
+      state.conversations.forEach(clearThinkingInConversation);
+      save();
+      renderAll();
+      toast(`已清理 ${count} 条思考内容`);
+    }
+
     async function regenerate(index) {
       const convo = getCurrentConvo();
       const visible = visibleMessages(convo);
@@ -3795,6 +3903,8 @@
       });
       el.cloudPullBtn.addEventListener("click", pullCloudState);
       el.cloudPushBtn.addEventListener("click", () => pushCloudState({ silent: false }));
+      el.clearCurrentThinkingBtn.addEventListener("click", clearCurrentThinking);
+      el.clearAllThinkingBtn.addEventListener("click", clearAllThinking);
       el.systemPromptInput.addEventListener("input", () => {
         state.settings.systemPrompt = el.systemPromptInput.value;
         updateSystemPromptHint();
