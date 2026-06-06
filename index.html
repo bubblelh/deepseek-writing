@@ -2027,8 +2027,8 @@
 
     function modelLabel(model) {
       const map = {
-        "deepseek-chat": "DeepSeek Chat",
-        "deepseek-reasoner": "DeepSeek Reasoner",
+        "deepseek-chat": "DeepSeek Chat（将于 2026/07/24 弃用）",
+        "deepseek-reasoner": "DeepSeek Reasoner（将于 2026/07/24 弃用）",
         "deepseek-v4-flash": "DeepSeek V4 Flash",
         "deepseek-v4-pro": "DeepSeek V4 Pro"
       };
@@ -2800,16 +2800,16 @@
     function showModelMenu(button) {
       closeMenu();
       const models = [
-        ["deepseek-chat", "DeepSeek Chat"],
-        ["deepseek-reasoner", "DeepSeek Reasoner"],
-        ["deepseek-v4-flash", "DeepSeek V4 Flash"],
-        ["deepseek-v4-pro", "DeepSeek V4 Pro"]
+        "deepseek-chat",
+        "deepseek-reasoner",
+        "deepseek-v4-flash",
+        "deepseek-v4-pro"
       ];
       const rect = button.getBoundingClientRect();
       const menu = document.createElement("div");
       menu.className = "tool-menu";
-      menu.innerHTML = models.map(([value, label]) => `<button data-model="${value}">
-        <i class="fa-solid fa-check ${state.settings.model === value ? "" : "empty-icon"}"></i>${label}
+      menu.innerHTML = models.map(value => `<button data-model="${value}">
+        <i class="fa-solid fa-check ${state.settings.model === value ? "" : "empty-icon"}"></i>${escapeHtml(modelLabel(value))}
       </button>`).join("");
       document.body.appendChild(menu);
       const left = Math.min(rect.left, window.innerWidth - menu.offsetWidth - 12);
