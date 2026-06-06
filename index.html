@@ -740,33 +740,47 @@
     .thinking {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      color: #4f5965;
-      font-weight: 700;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #4f5965;
-      line-height: 1.2;
+      gap: 6px;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      line-height: 1.3;
     }
 
     .thinking i {
-      color: #ffb21a;
+      color: #8c96a3;
     }
 
     .thinking-details {
-      margin-bottom: 10px;
-      color: #4f5965;
+      margin-bottom: 6px;
+      color: #6b7280;
     }
 
     .thinking-details summary {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       width: fit-content;
       cursor: pointer;
-      font-weight: 700;
-      border-bottom: 1px solid #4f5965;
-      line-height: 1.2;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.3;
       list-style: none;
+    }
+
+    .thinking-details summary::after {
+      content: "\f107";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      color: #9aa3af;
+      font-size: 11px;
+      margin-left: 2px;
+    }
+
+    .thinking-details[open] summary::after {
+      content: "\f106";
     }
 
     .thinking-details summary::-webkit-details-marker {
@@ -774,18 +788,18 @@
     }
 
     .thinking-details summary i {
-      color: #ffb21a;
+      color: #8c96a3;
     }
 
     .thinking-content {
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-left: 2px solid #ffd37a;
-      background: #fff9ed;
-      border-radius: 6px;
+      margin-top: 6px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: #f7f8f9;
+      border-radius: var(--radius);
       color: #5d6672;
-      font-size: 14px;
-      line-height: 1.75;
+      font-size: 13px;
+      line-height: 1.65;
       white-space: pre-wrap;
     }
 
