@@ -474,7 +474,7 @@
     .cloud-usage-line strong {
       color: #53606f;
       font-weight: 650;
-      white-space: nowrap;
+      text-align: right;
     }
 
     .cloud-usage-line.warn strong {
@@ -1748,7 +1748,7 @@
           <div class="cloud-usage">
             <div class="cloud-usage-line">
               <span>云端数据大小</span>
-              <strong id="cloudDataSize">0 KB / 2 MB</strong>
+              <strong id="cloudDataSize">0 KB</strong>
             </div>
             <div class="meter"><div class="meter-fill" id="cloudDataMeter"></div></div>
           </div>
@@ -2087,17 +2087,31 @@
       return `${bytes} B`;
     }
 
-    function cloudDataBytes() {
-      return byteLength(JSON.stringify(cloudSnapshot()));
+    function cloudStorageStats() {
+      const snapshot = cloudSnapshot();
+      const rows = [
+        JSON.stringify(snapshot.settings || {}),
+        JSON.stringify({ currentId: snapshot.currentId || "", version: snapshot.version || 3 })
+      ];
+      (snapshot.conversations || []).forEach(convo => {
+        const messages = Array.isArray(convo.messages) ? convo.messages : [];
+        rows.push(JSON.stringify({ ...convo, messages: [] }));
+        messages.forEach(message => rows.push(JSON.stringify(message)));
+      });
+      const rowBytes = rows.map(row => byteLength(row));
+      return {
+        totalBytes: byteLength(JSON.stringify(snapshot)),
+        maxRowBytes: rowBytes.length ? Math.max(...rowBytes) : 0
+      };
     }
 
     function updateCloudDataSize() {
       if (!el.cloudDataSize || !el.cloudDataMeter) return;
       const limit = 2 * 1000 * 1000;
-      const bytes = cloudDataBytes();
-      const percent = Math.min(100, Math.round((bytes / limit) * 100));
+      const stats = cloudStorageStats();
+      const percent = Math.min(100, Math.round((stats.maxRowBytes / limit) * 100));
       const line = el.cloudDataSize.closest(".cloud-usage-line");
-      el.cloudDataSize.textContent = `${formatBytes(bytes)} / 2 MB`;
+      el.cloudDataSize.textContent = `${formatBytes(stats.totalBytes)} · 最大单条 ${formatBytes(stats.maxRowBytes)} / 2 MB`;
       el.cloudDataMeter.style.width = `${percent}%`;
       el.cloudDataMeter.classList.toggle("warn", percent >= 70 && percent < 90);
       el.cloudDataMeter.classList.toggle("danger", percent >= 90);
