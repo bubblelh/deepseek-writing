@@ -60,6 +60,8 @@
     button {
       border: 0;
       cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .app {
@@ -1248,6 +1250,10 @@
 
       .sidebar {
         width: min(380px, 92vw);
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+        overscroll-behavior: contain;
       }
 
       .sidebar-head {
@@ -1267,7 +1273,9 @@
       }
 
       .side-panel {
-        padding: 12px;
+        padding: 12px 12px calc(96px + env(safe-area-inset-bottom));
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
       }
 
       .topbar {
@@ -1514,6 +1522,19 @@
 
       #modelPill {
         max-width: 112px;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .icon-btn:hover {
+        background: transparent;
+        color: #4f5965;
+      }
+
+      .tool-btn:hover,
+      .convo-action:hover,
+      .ghost-btn:hover {
+        background: inherit;
       }
     }
 
