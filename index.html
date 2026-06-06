@@ -755,6 +755,7 @@
     .thinking-details {
       margin-bottom: 6px;
       color: #6b7280;
+      white-space: normal;
     }
 
     .thinking-details summary {
@@ -2373,10 +2374,7 @@
         if (msg.role === "assistant") {
           const thinkingLabel = msg.thinkingSeconds !== undefined ? `思考了 ${msg.thinkingSeconds.toFixed(1)}s` : "思考中";
           if (String(msg.reasoningContent || "").trim()) {
-            content = `<details class="thinking-details">
-              <summary><i class="fa-regular fa-lightbulb"></i>${thinkingLabel}</summary>
-              <div class="thinking-content">${escapeHtml(String(msg.reasoningContent || "").trim())}</div>
-            </details>${content}`;
+            content = `<details class="thinking-details"><summary><i class="fa-regular fa-lightbulb"></i>${thinkingLabel}</summary><div class="thinking-content">${escapeHtml(String(msg.reasoningContent || "").trim())}</div></details>${content}`;
           } else if (msg.thinkingSeconds !== undefined) {
             content = `<div class="thinking"><i class="fa-regular fa-lightbulb"></i>${thinkingLabel}</div>${content}`;
           }
